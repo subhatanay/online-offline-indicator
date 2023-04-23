@@ -70,12 +70,27 @@ We are planning to use Redis cache to store active user association tables data 
 4. Apache Kafka and Kafka Connect
 
 # High Level Architecture Diagram
-<img width="1306" alt="image" src="https://user-images.githubusercontent.com/22850961/233852545-b0682f75-60a3-45cd-bd2c-a4ca24383704.png">
+<img width="1304" alt="image" src="https://user-images.githubusercontent.com/22850961/233852988-57cba7e5-5bfd-4768-afac-24f42f18fb54.png">
 
+# Database schema
+1. users table
 
-# Database schema diagram
+| Column        | Data Type     | Size in Bytes     |
+| ------------- | ------------- | ----------------- |
+| user_id       | int           | 4                 |
+| user_name     | varchar(255)  | 255               | 
+| status        | int           | 4                 |
+| last_seen     | long          | 8                 |
+| created_date  | long          | 8                 |
+| last_u_date   | long          | 8                 |
 
-# Use case diagram
+2. users_subscribers table
+| Column        | Data Type     | Size in Bytes     |
+| ------------- | ------------- | ----------------- |
+| user_id       | int           | 4                 |
+| user_id_t     | varchar(255)  | 4                 | 
+
+# Use cases diagram
 
 # Limitation
 
