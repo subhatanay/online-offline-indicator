@@ -41,12 +41,40 @@ For User table following details going to be store ::
 | last_seen     | long          | 8                 |
 | created_date  | long          | 8                 |
 | last_u_date   | long          | 8                 |
-
+```
 From the above User table , for each user record , we are using 287 or ~300 bytes. So, for 10M users = 300 * 10 * 10^6 = 3*10^9 = 3GB.
-We can store 3GB amount of data in postgres.
+```
 As there is no requirement of storing user's status history, we just consider or store the last online timestamp of a user in postgres database.
 
-For storing user's subscribtion details (i.e For deciding which user follow other users for the presence activity), 
+For storing user's subscribtion details (i.e For deciding which user follow other users for the presence activity), planned to store in Postgres as well. 
+For User's association below details ::
+| Column        | Data Type     | Size in Bytes     |
+| ------------- | ------------- | ----------------- |
+| user_id       | int           | 4                 |
+| user_id_t     | varchar(255)  | 4                 | 
 
+Taking consideration each user have 1K subscribers/followers , so 
+```
+each record takes 8 bytes ,
+for each user -> 1K * 8 = 8KB and 
+for 10M users = 8 KB * 10 M = 8 * 10^3 * 10^7 = 80 * 10^9 = 80 GB 
+```
+So, All total 83 GB amount of user data we are going to store in Database, and single postgres cluster with multiple read replica can store this information.
+
+We are planning to use Redis cache to store active user association tables data in cache to reduce the load in postgres system. This is yet to be analysed.
+
+# Technology Stack
+1. NodeJS
+2. PostgresSQL
+3. Redis (Cache and Pub/Sub System)
+4. Apache Kafka and Kafka Connect
+
+# High Level Architecture Diagram
+
+# Database schema diagram
+
+# Use case diagram
+
+# Limitation
 
 
