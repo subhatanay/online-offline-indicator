@@ -85,6 +85,7 @@ We are planning to use Redis cache to store active user association tables data 
 | last_u_date   | long          | 8                 |
 
 2. users_subscribers table
+
 | Column        | Data Type     | Size in Bytes     |
 | ------------- | ------------- | ----------------- |
 | user_id       | int           | 4                 |
