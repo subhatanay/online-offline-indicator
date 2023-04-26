@@ -23,7 +23,8 @@ CREATE TABLE user_subscribers (
 	  REFERENCES users(user_id),
     CONSTRAINT fk_user_id_to
       FOREIGN KEY(user_id_to) 
-	  REFERENCES users(user_id)
+	  REFERENCES users(user_id),
+    UNIQUE (user_id, user_id_to)
 );
 
 

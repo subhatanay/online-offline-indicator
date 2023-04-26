@@ -53,6 +53,7 @@ module.exports = (function () {
             return;
           }
           response.status(200).json({
+            count: result.rowCount,
             users: result.rows,
           }); 
         }
