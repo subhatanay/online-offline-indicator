@@ -35,7 +35,7 @@ module.exports = function(userCache) {
                     for (var i=0;i<activeSubscribedUserList.length;i++) {
                         var to_user = "" + activeSubscribedUserList[i].user_id;
                         if (userCache.isUserPresentInNode(to_user)) { 
-                            console.log ("emmitting presence event :: " +to_user)
+                            console.log (`Emitting presence event :: ${currentUserId}  to ${to_user}`)
                             userCache.getSocketForAUser(to_user).emit(eventsConst.PRESENCE_EVENT, {from_user_id : currentUserId, timestamp: new Date().getTime()})
                         } else {
                             // TODO send to redis channel for broadcast.
