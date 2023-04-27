@@ -17,16 +17,16 @@ services:
     expose:
     - "6379"
   
-  # db:
-  #   container_name: db
-  #   image: postgres:latest
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     - POSTGRES_PASSWORD=subhajit123
-  #     - POSTGRES_DB=presencedb
-  #   volumes: 
-  #     - ./userservice/initdb.sql:/docker-entrypoint-initdb.d/init.sql
+  db:
+    container_name: db
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=subhajit123
+      - POSTGRES_DB=presencedb
+    volumes: 
+      - ./userservice/initdb.sql:/docker-entrypoint-initdb.d/init.sql
 
   userservice: 
     container_name: pruserservice
@@ -40,8 +40,8 @@ services:
       - DATABASE_PASSWORD=subhajit123
       - DATABASE_DBNAME=presencedb
       - PORT=3000
-    # depends_on:
-      # - db 
+    depends_on:
+      - db 
   
   presence_server_1:
     container_name: presence_server_1
@@ -56,7 +56,7 @@ services:
       - DATABASE_DBNAME=presencedb
       - PORT=3001
     depends_on:
-    #   - db
+        - db
         - redis
 
   presence_server_2:
@@ -73,7 +73,7 @@ services:
       - PORT=3001
       - REDIS_URL=redis://redis_server:6379
     depends_on:
-    #   - db
+        - db
         - redis
   
  
