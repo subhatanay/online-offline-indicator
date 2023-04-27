@@ -1,7 +1,6 @@
 const eventsConst = require("../utils/event-const")
 module.exports = function (io, currentUserCache) {
-    const eventService = require('../services/event-service')(currentUserCache);
-    console.log("module loaded");
+    const eventService = require('../services/event-service')(currentUserCache); 
     io.on('connection', (socket) => { 
         
         socket.on(eventsConst.LOGIN_EVENT, event => {

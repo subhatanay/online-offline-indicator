@@ -1,8 +1,6 @@
-DROP DATABASE presencedb;
-CREATE DATABASE presencedb;
 \c presencedb;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     user_name varchar(255) NOT NULL,
     presence_status int NOT NULL DEFAULT 0,
@@ -11,10 +9,10 @@ CREATE TABLE users (
     last_u_stamp timestamp 
 );
 
-CREATE INDEX indx_user_name on users (user_name varchar_pattern_ops);
-CREATE INDEX indx_user_id_user_name on users (user_name varchar_pattern_ops,user_id);
+CREATE INDEX IF NOT EXISTS indx_user_name on users (user_name varchar_pattern_ops);
+CREATE INDEX IF NOT EXISTS indx_user_id_user_name on users (user_name varchar_pattern_ops,user_id);
 
-CREATE TABLE user_subscribers (
+CREATE TABLE IF NOT EXISTS user_subscribers (
     user_id int,
     user_id_to int,
 

@@ -4,6 +4,7 @@ const io = require('socket.io')(http);
 
 const userCache = require('./dao/current-users-cache');
 const presenceEventListener = require('./event-listeners/presence-event-listener')(io, userCache); 
+const redisSubscriberListener = require("./event-listeners/redis-subsciber-listener")(userCache);
 
 const port = process.env.PORT || 3001;
 

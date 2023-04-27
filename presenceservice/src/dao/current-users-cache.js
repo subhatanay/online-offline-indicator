@@ -6,22 +6,19 @@ module.exports = function () {
 
     return {
         addUserInNode: function(userid,socket) {
-            userNodeSet.set(userid,socket);
-            console.log(userNodeSet.keys());
+            userNodeSet.set(userid,socket); 
         },
-        isUserPresentInNode: function(userid) { 
-            console.log(userNodeSet.keys() , userid)
+        isUserPresentInNode: function(userid) {  
             return userNodeSet.has(userid);
         },
-        getSocketForAUser: function(userid) {
-            
+        getSocketForAUser: function(userid) { 
             return userNodeSet.get(userid)
         },
         removeUserFromCache : function(userid) {
             userNodeSet.delete(userid);
         },
         getSize() {
-            return userNodeSet;
+            return userNodeSet.size();
         }
 
     }

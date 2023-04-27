@@ -1,12 +1,80 @@
 version: '3'
 
 services: 
-  db:
-    container_name: db
-    image: postgres:latest
+  nginx:
+    container_name: nginx_proxy
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - "5432:5432"
+    - "3001:80"
+    depends_on:
+      - presence_server_1
+      - presence_server_2
+  redis:
+    container_name: redis_server
+    image: redis:latest
+    expose:
+    - "6379"
+  
+  # db:
+  #   container_name: db
+  #   image: postgres:latest
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_PASSWORD=subhajit123
+  #     - POSTGRES_DB=presencedb
+  #   volumes: 
+  #     - ./userservice/initdb.sql:/docker-entrypoint-initdb.d/init.sql
+
+  userservice: 
+    container_name: pruserservice
+    build: ./userservice
+    ports: 
+      - "3000:3000"
     environment:
-      - POSTGRES_PASSWORD=subhajit123
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=subhajit123
+      - DATABASE_DBNAME=presencedb
+      - PORT=3000
+    # depends_on:
+      # - db 
+  
+  presence_server_1:
+    container_name: presence_server_1
+    build: ./presenceservice
+    expose:
+    - "3001"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=subhajit123
+      - DATABASE_DBNAME=presencedb
+      - PORT=3001
+    depends_on:
+    #   - db
+        - redis
+
+  presence_server_2:
+    container_name:  presence_server_2
+    build: ./presenceservice
+    expose:
+    - "3001"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=subhajit123
+      - DATABASE_DBNAME=presencedb
+      - PORT=3001
+      - REDIS_URL=redis://redis_server:6379
+    depends_on:
+    #   - db
+        - redis
+  
  
  

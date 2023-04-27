@@ -3,6 +3,10 @@ const DBPOOL = require("../dao/db-pool");
 const userActionDao = require('../dao/user-action-dao')(DBPOOL)
 const userSubscriberDao = require('../dao/user-subscriber-dao')(DBPOOL)
 const eventsConst =  require('../utils/event-const')
+const dotenv = require('dotenv');
+dotenv.config();
+const redis = require("redis");
+const publisher = redis.createClient({url: process.env.REDIS_URL});
 
 module.exports = function(userCache) {
     return {
@@ -38,7 +42,10 @@ module.exports = function(userCache) {
                             console.log (`Emitting presence event :: ${currentUserId}  to ${to_user}`)
                             userCache.getSocketForAUser(to_user).emit(eventsConst.PRESENCE_EVENT, {from_user_id : currentUserId, timestamp: new Date().getTime()})
                         } else {
-                            // TODO send to redis channel for broadcast.
+                            //  send to redis channel for broadcast. 
+                            publisher.publish(eventsConst.REDIS_PRESENCE_CHANNEL, JSON.stringify({from_user_id: currentUserId ,  to_user_id: to_user}), function(){
+                                console.log("Successfully published message to redis");
+                            });
                         }
                     }
                     if (activeSubscribedUserList.length == 0) break;
