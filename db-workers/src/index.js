@@ -1,0 +1,1 @@
+require('./services/presence-update-worker')();

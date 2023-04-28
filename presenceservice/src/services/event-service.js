@@ -1,6 +1,5 @@
 
 const DBPOOL = require("../dao/db-pool");
-const userActionDao = require('../dao/user-action-dao')(DBPOOL)
 const userSubscriberDao = require('../dao/user-subscriber-dao')(DBPOOL)
 const eventsConst =  require('../utils/event-const')
 const dotenv = require('dotenv');
@@ -9,6 +8,7 @@ const redis = require("redis");
 const publisher = redis.createClient({url: process.env.REDIS_URL});
 publisher.connect();
 const redisUserCache = require('../dao/redis-user-cache');
+const kafkaProducer = require('../services/presence-db-update-producer')();
 
 module.exports = function(userCache) {
     return {
@@ -22,9 +22,9 @@ module.exports = function(userCache) {
             console.log(`Login request  from ${loginEvent.user_id}`);
             userCache.addUserInNode(loginEvent.user_id,socket);
             redisUserCache.setUserAsActive(loginEvent.user_id);
-            socket.emit(eventsConst.LOGIN_SUCCESS_EVENT, loginEvent);
-            userActionDao.updateUser(loginEvent.user_id, 1, null);
+            socket.emit(eventsConst.LOGIN_SUCCESS_EVENT, loginEvent); 
             socket.user_id = loginEvent.user_id; 
+            kafkaProducer.publishMessage(loginEvent.user_id, JSON.stringify({status: 'online', user_id: loginEvent.user_id, timestamp: new Date().getTime()}));
         },
 
         /*  1. update online status to redis
@@ -53,8 +53,8 @@ module.exports = function(userCache) {
                     }
                     if (activeSubscribedUserList.length == 0) break;
                     activeSubscribedUserList = userSubscriberDao.getActiveSubscribersByUser(currentUserId,activeSubscribedUserList[activeSubscribedUserList.length-1].user_id, 100);
-                } while (activeSubscribedUserList.length > 0);
-                userActionDao.updateUser(currentUserId, 1, null);
+                } while (activeSubscribedUserList.length > 0); 
+                kafkaProducer.publishMessage(currentUserId, JSON.stringify({status: 'online', user_id: currentUserId, timestamp: new Date().getTime()}));
             }
         },
         /*
@@ -65,8 +65,8 @@ module.exports = function(userCache) {
             if (userCache.isUserPresentInNode(socket.user_id)) {
                 console.log(`Disconnect request from ${socket.user_id}`);
                 userCache.removeUserFromCache(socket.user_id);
-                redisUserCache.expireUser(socket.user_id);
-                userActionDao.updateUser(socket.user_id, 0, null);
+                redisUserCache.expireUser(socket.user_id); 
+                kafkaProducer.publishMessage(socket.user_id, JSON.stringify({status: 'offline', user_id: socket.user_id, timestamp: new Date().getTime()}));
             }
             
         }
