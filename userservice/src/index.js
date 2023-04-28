@@ -1,8 +1,10 @@
 const express = require("express");
 const app = express();
 const dotenv = require('dotenv');
-const userService = require('./services/user-service')
-const userSubscriberService = require('./services/user-subscriber-service')
+const redisUserCache = require('./dao/redis-user-cache')
+const userService = require('./services/user-service')(redisUserCache)
+const userSubscriberService = require('./services/user-subscriber-service')(redisUserCache)
+
 
 dotenv.config();
 

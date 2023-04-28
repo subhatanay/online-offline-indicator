@@ -1,7 +1,6 @@
 const userSubscriberDao = require("../dao/user-subscriber-dao");
-const uservalidation = require("../helpers/user-validation");
-
-module.exports = (function () {
+const uservalidation = require("../helpers/user-validation"); 
+module.exports = (function (redisUserCache) {
   return {
     createUserSubscriber: function createUser(request, response) {
       var error = uservalidation.validateUserSubscriberObject(request.body);
@@ -40,7 +39,7 @@ module.exports = (function () {
       userSubscriberDao.getUserSubscribers(
         user_id, 
         limit,
-        function (err, result) {
+         async function (err, result) {
           if (err) {
             console.log(err)
             response.status(500).json({
@@ -49,6 +48,11 @@ module.exports = (function () {
             console.log("Fail to fetch  users. Reason : ", err);
             return;
           }
+          for (var i=0;i<result.rows.length;i++) {
+            var status =  await redisUserCache.getUserStatus(result.rows[i]["user_id"]);
+            result.rows[i]["presence_status"] = status || 'offline'; 
+          }
+
           response.status(200).json({
             count: result.rowCount,
             users: result.rows,
@@ -57,4 +61,4 @@ module.exports = (function () {
       );
     }
   };
-})();
+});

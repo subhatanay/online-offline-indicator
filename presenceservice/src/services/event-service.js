@@ -7,33 +7,36 @@ const dotenv = require('dotenv');
 dotenv.config();
 const redis = require("redis");
 const publisher = redis.createClient({url: process.env.REDIS_URL});
+publisher.connect();
+const redisUserCache = require('../dao/redis-user-cache');
 
 module.exports = function(userCache) {
     return {
         /*
             1. add the user in node
-            2. emit a success login message back to same client user
-            3. update the status of the user online back to db.
+            2. update online status to redis
+            3. emit a success login message back to same client user
+            4. update the status of the user online back to db.
         */ 
         onLoginRequestEvent : function(socket, loginEvent) {
             console.log(`Login request  from ${loginEvent.user_id}`);
             userCache.addUserInNode(loginEvent.user_id,socket);
+            redisUserCache.setUserAsActive(loginEvent.user_id);
             socket.emit(eventsConst.LOGIN_SUCCESS_EVENT, loginEvent);
             userActionDao.updateUser(loginEvent.user_id, 1, null);
-            socket.user_id = loginEvent.user_id;
-            
+            socket.user_id = loginEvent.user_id; 
         },
 
-        /*
-            1. fetch user's current active subscribed users in batch mode 
-            2. for each subscribed user send a presence event that current is active now 
-            3. update the status of the user online back to db. 
+        /*  1. update online status to redis
+            2. fetch user's current active subscribed users in batch mode 
+            3. for each subscribed user send a presence event that current is active now 
+            4. update the status of the user online back to db. 
         */
-        onHeartbeatEvent : async function (socket, heartbeatEvent) {
-            
+        onHeartbeatEvent : async function (socket, heartbeatEvent) { 
             const currentUserId = heartbeatEvent.user_id;
             if (userCache.isUserPresentInNode(currentUserId)) {
                 console.log(`Heartbeat event from ${currentUserId}`);
+                redisUserCache.setUserAsActive(currentUserId);
                 var activeSubscribedUserList = await userSubscriberDao.getActiveSubscribersByUser(currentUserId,0, 100); 
                 do { 
                     for (var i=0;i<activeSubscribedUserList.length;i++) {
@@ -60,7 +63,9 @@ module.exports = function(userCache) {
         */
         onDisconnectEvent: function (socket) {
             if (userCache.isUserPresentInNode(socket.user_id)) {
+                console.log(`Disconnect request from ${socket.user_id}`);
                 userCache.removeUserFromCache(socket.user_id);
+                redisUserCache.expireUser(socket.user_id);
                 userActionDao.updateUser(socket.user_id, 0, null);
             }
             

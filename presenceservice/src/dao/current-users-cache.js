@@ -1,7 +1,6 @@
 
 
-module.exports = function () {
-    console.log("creating map")
+module.exports = function () { 
     var userNodeSet = new Map();
 
     return {

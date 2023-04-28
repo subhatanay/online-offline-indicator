@@ -1,7 +1,7 @@
 const userdao = require("../dao/user-dao");
 const uservalidation = require("../helpers/user-validation");
 
-module.exports = (function () {
+module.exports = (function (redisUserCache) {
   return {
     createUser: function createUser(request, response) {
       var error = uservalidation.validateUserObject(request.body);
@@ -43,7 +43,7 @@ module.exports = (function () {
         user_search_text,
         user_id,
         limit,
-        function (err, result) {
+        async function (err, result) {
           if (err) {
             console.log(err)
             response.status(500).json({
@@ -51,6 +51,10 @@ module.exports = (function () {
             });
             console.log("Fail to fetch  users. Reason : ", err);
             return;
+          }
+          for (var i=0;i<result.rows.length;i++) {
+            var status =  await redisUserCache.getUserStatus(result.rows[i]["user_id"]);
+            result.rows[i]["presence_status"] = status || 'offline'; 
           }
           response.status(200).json({
             count: result.rowCount,
@@ -64,7 +68,7 @@ module.exports = (function () {
         
         userdao.getUserByUserId(
             user_id, 
-          function (err, result) {
+          async function (err, result) {
             if (err) {
               console.log(err)
               response.status(500).json({
@@ -74,6 +78,8 @@ module.exports = (function () {
               return;
             }
             if (result.rows && result.rows.length>0) {
+              var status = await redisUserCache.getUserStatus(result.rows[0]["user_id"]); 
+              result.rows[0]["presence_status"] = status || 'offline'; 
                 response.status(200).json({
                     user: result.rows[0],
                   }); 
@@ -86,4 +92,4 @@ module.exports = (function () {
       },
     
   };
-})();
+});

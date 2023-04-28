@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const redis = require("redis");
 const subscriber = redis.createClient({url: process.env.REDIS_URL});
+subscriber.connect();
 
 module.exports = function(userCache) {
     subscriber.on("message", function (channel, message) {
