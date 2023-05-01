@@ -34,10 +34,12 @@ module.exports = (function (redisUserCache) {
     },
     getUserSubscribers: function (request, response) {
       var user_id = parseInt(request.params.user_id);  
+      var start_user_offset = parseInt( request.query.start_user_offset) || 0;  
       var limit = parseInt(request.query.limit) || 10;  
 
       userSubscriberDao.getUserSubscribers(
         user_id, 
+        start_user_offset,
         limit,
          async function (err, result) {
           if (err) {

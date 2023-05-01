@@ -1,3 +1,4 @@
+const cors = require("cors");
 const express = require("express");
 const app = express();
 const dotenv = require('dotenv');
@@ -16,7 +17,9 @@ app.use(
     extended: true,
   })
 );
-
+app.use(cors({
+  origin: '*'
+}));
 
 app.post("/users", userService.createUser)
 app.get("/users", userService.getUsers)

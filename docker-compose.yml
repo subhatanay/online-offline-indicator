@@ -6,6 +6,7 @@ services:
     image: nginx:alpine
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/www:/www/data
     ports:
     - "80:80"
     depends_on:
@@ -17,6 +18,8 @@ services:
     image: redis:latest
     expose:
     - "6379"
+    ports:
+      - "6379:6379"
   
   db:
     container_name: db
