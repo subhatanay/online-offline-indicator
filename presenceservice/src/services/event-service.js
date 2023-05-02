@@ -4,13 +4,12 @@ const userSubscriberDao = require('../dao/user-subscriber-dao')(DBPOOL)
 const eventsConst =  require('../utils/event-const')
 const dotenv = require('dotenv');
 dotenv.config();
-const redis = require("redis");
-const publisher = redis.createClient({url: process.env.REDIS_URL});
-publisher.connect();
 const redisUserCache = require('../dao/redis-user-cache');
 const kafkaProducer = require('../services/presence-db-update-producer')();
 
+
 module.exports = function(userCache) {
+    const redisSubscriberListener = require("../event-listeners/redis-subsciber-listener")(userCache);
     return {
         /*
             1. add the user in node
@@ -45,10 +44,9 @@ module.exports = function(userCache) {
                             console.log (`Emitting presence event :: ${currentUserId}  to ${to_user}`)
                             userCache.getSocketForAUser(to_user).emit(eventsConst.PRESENCE_EVENT, {from_user_id : currentUserId, timestamp: new Date().getTime()})
                         } else {
+                            console.log("sending to redis pubsub");
                             //  send to redis channel for broadcast. 
-                            publisher.publish(eventsConst.REDIS_PRESENCE_CHANNEL, JSON.stringify({from_user_id: currentUserId ,  to_user_id: to_user}), function(){
-                                console.log("Successfully published message to redis");
-                            });
+                             redisSubscriberListener.publish(JSON.stringify({from_user_id: currentUserId ,  to_user_id: to_user}));
                         }
                     }
                     if (activeSubscribedUserList.length == 0) break;

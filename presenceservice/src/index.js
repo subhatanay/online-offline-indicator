@@ -1,11 +1,15 @@
 const cors = require('cors');
 const app = require('express')();
 const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const io = require('socket.io')(http,{ 
+   cors: {
+    origin: "*", 
+  }
+});
 
 const userCache = require('./dao/current-users-cache');
 const presenceEventListener = require('./event-listeners/presence-event-listener')(io, userCache); 
-const redisSubscriberListener = require("./event-listeners/redis-subsciber-listener")(userCache);
+
 
 const port = process.env.PORT || 3001;
 
