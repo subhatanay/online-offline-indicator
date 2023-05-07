@@ -113,10 +113,14 @@ We are planning to use Redis cache to store active user association tables data 
 
 
 # Use cases diagram
+### Flow diagram for adding users and its subscribers
+<img width="943" alt="image" src="https://user-images.githubusercontent.com/22850961/236698686-4bcf406b-5b64-4213-963a-4ee9a6b224aa.png">
+
 ### Message flow of showing one user's presence status to another user.
 <img width="1624" alt="image" src="https://user-images.githubusercontent.com/22850961/236697903-aaafb9f3-5913-4efa-87c9-8afea49d484b.png">
 
 
 # Limitation
+1. Currently support only for offline and online status. We can add for status updates for busy, sharing, meeting.
 
 
