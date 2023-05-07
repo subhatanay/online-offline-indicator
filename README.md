@@ -101,6 +101,9 @@ We are planning to use Redis cache to store active user association tables data 
 | /users/{userId}/subscibers     | POST        | {"user_id":2 |  NA                | 
 
 # Use cases diagram
+### Message flow of showing one user's presence status to another user.
+<img width="1624" alt="image" src="https://user-images.githubusercontent.com/22850961/236697903-aaafb9f3-5913-4efa-87c9-8afea49d484b.png">
+
 
 # Limitation
 
