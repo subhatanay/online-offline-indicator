@@ -91,6 +91,15 @@ We are planning to use Redis cache to store active user association tables data 
 | user_id       | int           | 4                 |
 | user_id_t     | varchar(255)  | 4                 | 
 
+# API Details
+## userservice
+| Resource URL        | Request Method     | Request Body     | Response Body     |
+| ------------------- | ------------------ | ---------------- | --------------------
+| /users              | POST               | {"name": "subhajit"} |  {"user_id": 1}                 | 
+| /users              | GET               | NA |  {"rowCount":100, users: [ {"user_id": 1,"name": "subhajit", "presence_status": "online","last_seen" :"2023-05-07"}       ..]}             | 
+| /users/{userId}              | GET               | NA |  {"user_id": 1,"name": "subhajit", "presence_status": "online","last_seen" :"2023-05-07"}                 | 
+| /users/{userId}/subscibers     | POST        | {"user_id":2 |  NA                | 
+
 # Use cases diagram
 
 # Limitation
